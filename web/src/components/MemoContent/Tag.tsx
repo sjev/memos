@@ -1,18 +1,19 @@
+import { observer } from "mobx-react-lite";
 import { useContext } from "react";
 import { useLocation } from "react-router-dom";
 import useNavigateTo from "@/hooks/useNavigateTo";
+import { cn } from "@/lib/utils";
 import { Routes } from "@/router";
-import { stringifyFilters, useMemoFilterStore } from "@/store/v1";
-import { cn } from "@/utils";
+import { memoFilterStore } from "@/store/v2";
+import { stringifyFilters, MemoFilter } from "@/store/v2/memoFilter";
 import { RendererContext } from "./types";
 
 interface Props {
   content: string;
 }
 
-const Tag: React.FC<Props> = ({ content }: Props) => {
+const Tag = observer(({ content }: Props) => {
   const context = useContext(RendererContext);
-  const memoFilterStore = useMemoFilterStore();
   const location = useLocation();
   const navigateTo = useNavigateTo();
 
@@ -31,9 +32,9 @@ const Tag: React.FC<Props> = ({ content }: Props) => {
       return;
     }
 
-    const isActive = memoFilterStore.getFiltersByFactor("tagSearch").some((filter) => filter.value === content);
+    const isActive = memoFilterStore.getFiltersByFactor("tagSearch").some((filter: MemoFilter) => filter.value === content);
     if (isActive) {
-      memoFilterStore.removeFilter((f) => f.factor === "tagSearch" && f.value === content);
+      memoFilterStore.removeFilter((f: MemoFilter) => f.factor === "tagSearch" && f.value === content);
     } else {
       memoFilterStore.addFilter({
         factor: "tagSearch",
@@ -44,12 +45,12 @@ const Tag: React.FC<Props> = ({ content }: Props) => {
 
   return (
     <span
-      className={cn("inline-block w-auto text-blue-600 dark:text-blue-400", context.disableFilter ? "" : "cursor-pointer hover:opacity-80")}
+      className={cn("inline-block w-auto text-primary", context.disableFilter ? "" : "cursor-pointer hover:opacity-80")}
       onClick={handleTagClick}
     >
       #{content}
     </span>
   );
-};
+});
 
 export default Tag;

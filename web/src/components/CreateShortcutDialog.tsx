@@ -1,15 +1,15 @@
-import { Input, Textarea } from "@mui/joy";
-import { Button } from "@usememos/mui";
 import { XIcon } from "lucide-react";
 import React, { useState } from "react";
 import { toast } from "react-hot-toast";
-import { userServiceClient } from "@/grpcweb";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { shortcutServiceClient } from "@/grpcweb";
 import useCurrentUser from "@/hooks/useCurrentUser";
 import useLoading from "@/hooks/useLoading";
 import { userStore } from "@/store/v2";
-import { Shortcut } from "@/types/proto/api/v1/user_service";
+import { Shortcut } from "@/types/proto/api/v1/shortcut_service";
 import { useTranslate } from "@/utils/i18n";
-import { generateUUID } from "@/utils/uuid";
 import { generateDialog } from "./Dialog";
 
 interface Props extends DialogProps {
@@ -20,7 +20,11 @@ const CreateShortcutDialog: React.FC<Props> = (props: Props) => {
   const { destroy } = props;
   const t = useTranslate();
   const user = useCurrentUser();
-  const [shortcut, setShortcut] = useState(Shortcut.fromPartial({ ...props.shortcut }));
+  const [shortcut, setShortcut] = useState<Shortcut>({
+    name: props.shortcut?.name || "",
+    title: props.shortcut?.title || "",
+    filter: props.shortcut?.filter || "",
+  });
   const requestState = useLoading(false);
   const isCreating = !props.shortcut;
 
@@ -40,16 +44,23 @@ const CreateShortcutDialog: React.FC<Props> = (props: Props) => {
 
     try {
       if (isCreating) {
-        await userServiceClient.createShortcut({
+        await shortcutServiceClient.createShortcut({
           parent: user.name,
           shortcut: {
-            ...shortcut,
-            id: generateUUID(),
+            name: "", // Will be set by server
+            title: shortcut.title,
+            filter: shortcut.filter,
           },
         });
         toast.success("Create shortcut successfully");
       } else {
-        await userServiceClient.updateShortcut({ parent: user.name, shortcut, updateMask: ["title", "filter"] });
+        await shortcutServiceClient.updateShortcut({
+          shortcut: {
+            ...shortcut,
+            name: props.shortcut!.name, // Keep the original resource name
+          },
+          updateMask: ["title", "filter"],
+        });
         toast.success("Update shortcut successfully");
       }
       // Refresh shortcuts.
@@ -62,10 +73,10 @@ const CreateShortcutDialog: React.FC<Props> = (props: Props) => {
   };
 
   return (
-    <div className="max-w-full shadow flex flex-col justify-start items-start bg-white dark:bg-zinc-800 dark:text-gray-300 p-4 rounded-lg">
+    <div className="max-w-full shadow flex flex-col justify-start items-start bg-card text-card-foreground p-4 rounded-lg">
       <div className="flex flex-row justify-between items-center mb-4 gap-2 w-full">
         <p className="title-text">{`${isCreating ? t("common.create") : t("common.edit")} ${t("common.shortcuts")}`}</p>
-        <Button size="sm" variant="plain" onClick={() => destroy()}>
+        <Button variant="ghost" onClick={() => destroy()}>
           <XIcon className="w-5 h-auto" />
         </Button>
       </div>
@@ -76,9 +87,7 @@ const CreateShortcutDialog: React.FC<Props> = (props: Props) => {
           <span className="text-sm whitespace-nowrap mt-3 mb-1">{t("common.filter")}</span>
           <Textarea
             className="w-full"
-            minRows={3}
-            maxRows={5}
-            size="sm"
+            rows={3}
             placeholder={t("common.shortcut-filter")}
             value={shortcut.filter}
             onChange={onShortcutFilterChange}
@@ -89,7 +98,7 @@ const CreateShortcutDialog: React.FC<Props> = (props: Props) => {
           <ul className="list-disc list-inside text-sm pl-2 mt-1">
             <li>
               <a
-                className="text-sm text-blue-600 hover:underline"
+                className="text-sm text-primary hover:underline"
                 href="https://www.usememos.com/docs/getting-started/shortcuts"
                 target="_blank"
               >
@@ -98,7 +107,7 @@ const CreateShortcutDialog: React.FC<Props> = (props: Props) => {
             </li>
             <li>
               <a
-                className="text-sm text-blue-600 hover:underline"
+                className="text-sm text-primary hover:underline"
                 href="https://www.usememos.com/docs/getting-started/shortcuts#how-to-write-a-filter"
                 target="_blank"
               >
@@ -108,7 +117,7 @@ const CreateShortcutDialog: React.FC<Props> = (props: Props) => {
           </ul>
         </div>
         <div className="w-full flex flex-row justify-end items-center space-x-2 mt-2">
-          <Button variant="plain" disabled={requestState.isLoading} onClick={destroy}>
+          <Button variant="ghost" disabled={requestState.isLoading} onClick={destroy}>
             {t("common.cancel")}
           </Button>
           <Button color="primary" disabled={requestState.isLoading} onClick={handleConfirm}>
