@@ -1,4 +1,6 @@
-# CLAUDE.md - Memos Project Documentation
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview
 
@@ -84,29 +86,54 @@ We recently completed a comprehensive refactoring to align the API with Google A
 - **Component Updates**: React components now handle new API structures
 - **Type Safety**: Enhanced TypeScript definitions for better type checking
 
-## Development Workflow
+## Common Development Commands
 
-### Code Quality Standards
-
-- **golangci-lint**: Comprehensive linting with 15+ linters enabled
-- **Protocol Buffer Generation**: `buf generate` for type-safe API generation
-- **Frontend Linting**: ESLint + TypeScript strict mode
-
-### Build Process
+### Backend Development
 
 ```bash
-# Backend build
-sh ./scripts/build.sh
+# Build the application
+go build -o ./build/memos ./bin/memos/main.go
+# OR use the build script
+./scripts/build.sh
 
-# Frontend build
-cd web && pnpm build
+# Run in development mode
+go run ./bin/memos/main.go --mode dev --port 8081
 
-# Protocol buffer generation
+# Run in production mode
+go run ./bin/memos/main.go --mode prod --port 8081
+
+# Run with custom database
+go run ./bin/memos/main.go --mode dev --driver mysql --dsn "user:pass@tcp(localhost:3306)/memos"
+go run ./bin/memos/main.go --mode dev --driver postgres --dsn "postgresql://user:pass@localhost/memos"
+
+# Run with unix socket
+go run ./bin/memos/main.go --mode dev --unix-sock /tmp/memos.sock
+```
+
+### Frontend Development
+
+```bash
+# Navigate to web directory and install dependencies
+cd web && pnpm install
+
+# Start development server (hot reload)
+pnpm dev
+
+# Build for production
+pnpm build
+
+# Build for release (outputs to server/router/frontend/dist)
+pnpm release
+
+# Lint TypeScript and JavaScript
+pnpm lint
+```
+
+### Protocol Buffer Generation
+
+```bash
+# Generate protobuf files (requires buf CLI)
 cd proto && buf generate
-
-# Linting
-golangci-lint run --timeout=3m
-cd web && pnpm lint
 ```
 
 ### Testing Commands
@@ -115,11 +142,33 @@ cd web && pnpm lint
 # Run all tests
 go test ./...
 
-# Specific service tests
-go test ./server/router/api/v1/... -v
+# Run specific test packages
+go test -v ./internal/util/...
+go test -v ./store/test/...
+go test -v ./server/router/api/v1/test/...
+go test -v ./plugin/...
+
+# Run tests with MySQL database
+DRIVER=mysql DSN=root@/memos_test go test -v ./store/test/...
+
+# Run tests with PostgreSQL database
+DRIVER=postgres DSN=postgres://user:pass@localhost/memos_test go test -v ./store/test/...
 
 # Test with coverage
 go test -cover ./...
+```
+
+### Code Quality Standards
+
+```bash
+# Run linting (if configured)
+golangci-lint run --timeout=3m
+
+# Format Go code
+go fmt ./...
+
+# Frontend linting
+cd web && pnpm lint
 ```
 
 ## Frontend Architecture
@@ -201,14 +250,72 @@ FROM alpine:latest AS production
 - **Profile-Based**: Development, staging, production profiles
 - **Database URLs**: Flexible database connection strings
 
+## Environment Variables
+
+Key environment variables for configuration:
+
+- `MEMOS_MODE`: Server mode (`dev`, `prod`, `demo`)
+- `MEMOS_PORT`: Server port (default: 8081)
+- `MEMOS_ADDR`: Server address (default: empty, binds to all interfaces)
+- `MEMOS_UNIX_SOCK`: Unix socket path (overrides addr/port)
+- `MEMOS_DRIVER`: Database driver (`sqlite`, `mysql`, `postgres`)
+- `MEMOS_DSN`: Database connection string
+- `MEMOS_INSTANCE_URL`: Public URL for the instance
+- `MEMOS_DATA`: Data directory path
+
+## Key Development Patterns
+
+### Adding New API Endpoints
+
+1. Define protobuf service in `proto/api/v1/`
+2. Run `buf generate` to generate code
+3. Implement service in `server/router/api/v1/`
+4. Add database operations in `store/`
+5. Update frontend types and components
+
+### Database Operations
+
+- Use store layer methods, not direct SQL queries
+- All database operations support transactions
+- Multi-database support (SQLite, MySQL, PostgreSQL)
+- Caching is handled automatically for frequently accessed data
+
+### Frontend Component Development
+
+- Components are organized in `web/src/components/`
+- Use TypeScript with strict typing
+- Follow existing patterns for API calls using generated gRPC clients
+- Use MobX for global state management
+- Use consistent styling with Tailwind CSS
+
+## Common Issues and Solutions
+
+### Port Conflicts
+- Default port 8081 may conflict with other services
+- Use `--port` flag or `MEMOS_PORT` environment variable to change
+
+### Database Permissions
+- Ensure proper permissions for SQLite database files
+- Verify network access for MySQL/PostgreSQL connections
+- Check DSN format for database connections
+
+### Protocol Buffer Compilation
+- Requires `buf` CLI tool for code generation
+- Run `buf generate` from `proto/` directory after proto changes
+
+### Frontend Development
+- Use `pnpm` instead of `npm` for package management
+- Frontend dev server runs on port 3000 by default
+- Backend API is proxied during development
+
 ## Contributing Guidelines
 
 ### Code Standards
 
 1. **Protocol Buffers**: Follow AIP guidelines for new services
-2. **Go Code**: Use `golangci-lint` configuration
+2. **Go Code**: Use `golangci-lint` configuration and `go fmt`
 3. **TypeScript**: Strict mode with comprehensive type checking
-4. **Testing**: Write tests for new features using TestService helpers
+4. **Testing**: Write tests for new features using existing test patterns
 
 ### Pull Request Process
 
