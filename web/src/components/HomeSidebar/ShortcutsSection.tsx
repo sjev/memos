@@ -1,5 +1,6 @@
 import { Edit3Icon, MoreVerticalIcon, TrashIcon, PlusIcon } from "lucide-react";
 import { observer } from "mobx-react-lite";
+import { useState } from "react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { shortcutServiceClient } from "@/grpcweb";
 import useAsyncEffect from "@/hooks/useAsyncEffect";
@@ -8,8 +9,8 @@ import { userStore } from "@/store/v2";
 import memoFilterStore from "@/store/v2/memoFilter";
 import { Shortcut } from "@/types/proto/api/v1/shortcut_service";
 import { useTranslate } from "@/utils/i18n";
-import showCreateShortcutDialog from "../CreateShortcutDialog";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import CreateShortcutDialog from "../CreateShortcutDialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
 
 const emojiRegex = /^(\p{Emoji_Presentation}|\p{Emoji}\uFE0F)$/u;
 
@@ -23,6 +24,8 @@ const getShortcutId = (name: string): string => {
 const ShortcutsSection = observer(() => {
   const t = useTranslate();
   const shortcuts = userStore.state.shortcuts;
+  const [isCreateShortcutDialogOpen, setIsCreateShortcutDialogOpen] = useState(false);
+  const [editingShortcut, setEditingShortcut] = useState<Shortcut | undefined>();
 
   useAsyncEffect(async () => {
     await userStore.fetchShortcuts();
@@ -36,6 +39,21 @@ const ShortcutsSection = observer(() => {
     }
   };
 
+  const handleCreateShortcut = () => {
+    setEditingShortcut(undefined);
+    setIsCreateShortcutDialogOpen(true);
+  };
+
+  const handleEditShortcut = (shortcut: Shortcut) => {
+    setEditingShortcut(shortcut);
+    setIsCreateShortcutDialogOpen(true);
+  };
+
+  const handleShortcutDialogSuccess = () => {
+    setIsCreateShortcutDialogOpen(false);
+    setEditingShortcut(undefined);
+  };
+
   return (
     <div className="w-full flex flex-col justify-start items-start mt-3 px-1 h-auto shrink-0 flex-nowrap hide-scrollbar">
       <div className="flex flex-row justify-between items-center w-full gap-1 mb-1 text-sm leading-6 text-muted-foreground select-none">
@@ -43,7 +61,7 @@ const ShortcutsSection = observer(() => {
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <PlusIcon className="w-4 h-auto cursor-pointer" onClick={() => showCreateShortcutDialog({})} />
+              <PlusIcon className="w-4 h-auto cursor-pointer" onClick={handleCreateShortcut} />
             </TooltipTrigger>
             <TooltipContent>
               <p>{t("common.create")}</p>
@@ -64,39 +82,37 @@ const ShortcutsSection = observer(() => {
               className="shrink-0 w-full text-sm rounded-md leading-6 flex flex-row justify-between items-center select-none gap-2 text-muted-foreground"
             >
               <span
-                className={cn("truncate cursor-pointer opacity-80", selected && "text-primary font-medium")}
+                className={cn("truncate cursor-pointer text-muted-foreground", selected && "text-primary font-medium")}
                 onClick={() => (selected ? memoFilterStore.setShortcut(undefined) : memoFilterStore.setShortcut(shortcutId))}
               >
                 {emoji && <span className="text-base mr-1">{emoji}</span>}
                 {title.trim()}
               </span>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <MoreVerticalIcon className="w-4 h-auto shrink-0 opacity-40 cursor-pointer hover:opacity-70" />
-                </PopoverTrigger>
-                <PopoverContent align="end" alignOffset={-12}>
-                  <div className="flex flex-col text-sm gap-0.5">
-                    <button
-                      onClick={() => showCreateShortcutDialog({ shortcut })}
-                      className="flex items-center gap-2 px-2 py-1 text-left hover:bg-muted outline-none rounded"
-                    >
-                      <Edit3Icon className="w-4 h-auto" />
-                      {t("common.edit")}
-                    </button>
-                    <button
-                      onClick={() => handleDeleteShortcut(shortcut)}
-                      className="flex items-center gap-2 px-2 py-1 text-left text-destructive hover:bg-muted outline-none rounded"
-                    >
-                      <TrashIcon className="w-4 h-auto" />
-                      {t("common.delete")}
-                    </button>
-                  </div>
-                </PopoverContent>
-              </Popover>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <MoreVerticalIcon className="w-4 h-auto shrink-0 text-muted-foreground cursor-pointer hover:text-foreground" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" alignOffset={-12}>
+                  <DropdownMenuItem onClick={() => handleEditShortcut(shortcut)}>
+                    <Edit3Icon className="w-4 h-auto" />
+                    {t("common.edit")}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleDeleteShortcut(shortcut)}>
+                    <TrashIcon className="w-4 h-auto" />
+                    {t("common.delete")}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           );
         })}
       </div>
+      <CreateShortcutDialog
+        open={isCreateShortcutDialogOpen}
+        onOpenChange={setIsCreateShortcutDialogOpen}
+        shortcut={editingShortcut}
+        onSuccess={handleShortcutDialogSuccess}
+      />
     </div>
   );
 });
