@@ -1,7 +1,7 @@
 FROM golang:1.24-alpine
 
-# Install basic tools
-RUN apk add --no-cache git make gcc
+# Install basic tools and libc-dev for CGO
+RUN apk add --no-cache git make gcc libc-dev
 
 # Create app directory
 WORKDIR /app
