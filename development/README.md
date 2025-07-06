@@ -32,6 +32,7 @@ A Docker Compose-based development environment for Memos that provides:
 - **Hot reload**: Manual restart via `docker-compose restart backend`
 - **Database**: SQLite with sample data
 - **Environment**: Development mode
+- **Note**: Initial compilation takes 60-90 seconds due to Go dependencies
 
 ### Frontend (React)
 - **Port**: 3000
