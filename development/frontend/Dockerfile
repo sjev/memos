@@ -16,5 +16,5 @@ COPY web/ ./
 # Expose port
 EXPOSE 3000
 
-# Start dev server
-CMD ["pnpm", "dev", "--host", "0.0.0.0"]
+# Start dev server on port 3000
+CMD ["pnpm", "dev", "--host", "0.0.0.0", "--port", "3000"]
