@@ -1,5 +1,5 @@
 {
-    // "postCreateCommand": "./init_container.sh",
+    "postCreateCommand": "cd web && pnpm install",
     "build": {
         "dockerfile": "Dockerfile",
         "args": {
@@ -8,16 +8,27 @@
         }
     },
     // Use 'forwardPorts' to make a list of ports inside the container available locally.
-    "forwardPorts": [
-        3001
-    ],
+    "forwardPorts": [3001, 8081],
+    "portsAttributes": {
+        "3001": {
+            "label": "Frontend Dev Server",
+            "onAutoForward": "notify"
+        },
+        "8081": {
+            "label": "Backend API",
+            "onAutoForward": "notify"
+        }
+    },
     // Configure tool-specific properties.
     "customizations": {
         "vscode": {
             "extensions": [
                 "golang.go",
-                "mhutchie.git-graph",
-                "dbaeumer.vscode-eslint"
+                "ms-vscode.vscode-typescript-next",
+                "bradlc.vscode-tailwindcss",
+                "esbenp.prettier-vscode",
+                "dbaeumer.vscode-eslint",
+                "mhutchie.git-graph"
             ]
         }
     }
