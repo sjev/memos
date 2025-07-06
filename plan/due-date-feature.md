@@ -138,7 +138,7 @@ export function isDueDateTag(tag: string): boolean {
 export function parseDueDateFromTag(tag: string): Date | null {
   const match = tag.match(/due\/(\d{4}-\d{2}-\d{2})/);
   if (!match) return null;
-  
+
   const date = new Date(match[1]);
   return isNaN(date.getTime()) ? null : date;
 }
@@ -146,7 +146,7 @@ export function parseDueDateFromTag(tag: string): Date | null {
 export function getDueDateStatus(date: Date): 'overdue' | 'upcoming' | 'future' {
   const now = new Date();
   const diffDays = Math.ceil((date.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-  
+
   if (diffDays < 0) return 'overdue';
   if (diffDays <= 7) return 'upcoming';
   return 'future';
@@ -175,9 +175,9 @@ export function filterMemosByDueDate(memos: Memo[], filterType: 'dueDate' | 'ove
   return memos.filter(memo => {
     const tags = extractTagsFromMemo(memo); // Use existing tag extraction
     const dueDateTags = tags.filter(tag => isDueDateTag(tag));
-    
+
     if (dueDateTags.length === 0) return filterType === 'dueDate' ? false : false;
-    
+
     const dueDates = dueDateTags.map(tag => parseDueDateFromTag(tag)).filter(Boolean);
     // Filter logic based on filterType...
   });
@@ -190,18 +190,18 @@ export function filterMemosByDueDate(memos: Memo[], filterType: 'dueDate' | 'ove
 // Extend existing Tag component to handle due date styling
 const Tag: React.FC<{ tag: string }> = ({ tag }) => {
   const isDueDate = isDueDateTag(tag);
-  
+
   if (isDueDate) {
     const date = parseDueDateFromTag(tag);
     const status = date ? getDueDateStatus(date) : 'future';
-    
+
     return (
       <span className={`tag due-date-tag ${status}`}>
         #{tag}
       </span>
     );
   }
-  
+
   // Existing tag rendering logic...
 };
 ```
