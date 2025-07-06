@@ -23,3 +23,6 @@ dist
 # Node modules
 .pnpm-store/
 .pnpm/
+
+# Development environment data
+development/data/
