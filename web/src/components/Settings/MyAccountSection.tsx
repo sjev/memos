@@ -1,17 +1,28 @@
 import { MoreVerticalIcon, PenLineIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import useCurrentUser from "@/hooks/useCurrentUser";
+import { useDialog } from "@/hooks/useDialog";
 import { useTranslate } from "@/utils/i18n";
-import showChangeMemberPasswordDialog from "../ChangeMemberPasswordDialog";
-import showUpdateAccountDialog from "../UpdateAccountDialog";
+import ChangeMemberPasswordDialog from "../ChangeMemberPasswordDialog";
+import UpdateAccountDialog from "../UpdateAccountDialog";
 import UserAvatar from "../UserAvatar";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import AccessTokenSection from "./AccessTokenSection";
 import UserSessionsSection from "./UserSessionsSection";
 
 const MyAccountSection = () => {
   const t = useTranslate();
   const user = useCurrentUser();
+  const accountDialog = useDialog();
+  const passwordDialog = useDialog();
+
+  const handleEditAccount = () => {
+    accountDialog.open();
+  };
+
+  const handleChangePassword = () => {
+    passwordDialog.open();
+  };
 
   return (
     <div className="w-full gap-2 pt-2 pb-4">
@@ -27,29 +38,30 @@ const MyAccountSection = () => {
         </div>
       </div>
       <div className="w-full flex flex-row justify-start items-center mt-2 space-x-2">
-        <Button variant="outline" onClick={showUpdateAccountDialog}>
+        <Button variant="outline" onClick={handleEditAccount}>
           <PenLineIcon className="w-4 h-4 mx-auto mr-1" />
           {t("common.edit")}
         </Button>
-        <Popover>
-          <PopoverTrigger asChild>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
             <Button variant="outline">
               <MoreVerticalIcon className="w-4 h-4 mx-auto" />
             </Button>
-          </PopoverTrigger>
-          <PopoverContent align="start" className="text-sm p-1">
-            <button
-              onClick={() => showChangeMemberPasswordDialog(user)}
-              className="w-full flex items-center gap-2 px-2 py-1 text-left text-sm hover:bg-muted rounded-md"
-            >
-              {t("setting.account-section.change-password")}
-            </button>
-          </PopoverContent>
-        </Popover>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start">
+            <DropdownMenuItem onClick={handleChangePassword}>{t("setting.account-section.change-password")}</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       <UserSessionsSection />
       <AccessTokenSection />
+
+      {/* Update Account Dialog */}
+      <UpdateAccountDialog open={accountDialog.isOpen} onOpenChange={accountDialog.setOpen} />
+
+      {/* Change Password Dialog */}
+      <ChangeMemberPasswordDialog open={passwordDialog.isOpen} onOpenChange={passwordDialog.setOpen} user={user} />
     </div>
   );
 };
