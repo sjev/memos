@@ -34,7 +34,7 @@ services:
       dockerfile: development/frontend/Dockerfile
     container_name: memos-frontend-dev
     ports:
-      - "3000:3000"
+      - "3000:3001"
     volumes:
       - ../web:/app
       - /app/node_modules
