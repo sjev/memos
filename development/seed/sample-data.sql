@@ -3,9 +3,9 @@
 
 -- Create demo users
 INSERT INTO user (id, username, role, email, nickname, password_hash, avatar_url, description) VALUES
-(1, 'admin', 'HOST', 'admin@demo.com', 'Admin User', '$2a$10$aFE8dNJZQ8jKEjMC1eXBJONOOLYxBF.8hgQwsP8nZJIYIJrQnCjWO', '', 'System administrator'),
-(2, 'demo', 'USER', 'demo@demo.com', 'Demo User', '$2a$10$aFE8dNJZQ8jKEjMC1eXBJONOOLYxBF.8hgQwsP8nZJIYIJrQnCjWO', '', 'Demo user account'),
-(3, 'john', 'USER', 'john@demo.com', 'John Doe', '$2a$10$aFE8dNJZQ8jKEjMC1eXBJONOOLYxBF.8hgQwsP8nZJIYIJrQnCjWO', '', 'Software developer');
+(1, 'admin', 'HOST', 'admin@demo.com', 'Admin User', '$2a$10$k7/c7Hcs.rltqZSqFHeZdeSACn8Q4drncGFMy0z/HgBYHRviw4yh2', '', 'System administrator'),
+(2, 'demo', 'USER', 'demo@demo.com', 'Demo User', '$2a$10$k7/c7Hcs.rltqZSqFHeZdeSACn8Q4drncGFMy0z/HgBYHRviw4yh2', '', 'Demo user account'),
+(3, 'john', 'USER', 'john@demo.com', 'John Doe', '$2a$10$k7/c7Hcs.rltqZSqFHeZdeSACn8Q4drncGFMy0z/HgBYHRviw4yh2', '', 'Software developer');
 
 -- Create sample memos
 INSERT INTO memo (id, uid, creator_id, content, visibility, created_ts, updated_ts) VALUES
