@@ -228,3 +228,39 @@ const Tag: React.FC<{ tag: string }> = ({ tag }) => {
 - **Testing:** 0.5 day
 
 **Total:** 1-2 days for complete implementation
+
+---
+
+## GitHub Issue Summary for Feedback
+
+## Proposed Implementation: Due Date Feature using Hashtags
+
+### Summary
+Implement due dates using the existing hashtag system with format `#due/YYYY-MM-DD` - no backend changes needed.
+
+### User Experience
+- **Add due date**: Type `#due/2025-08-05` in memo content
+- **Visual indicators**: Due date tags render with color coding (red=overdue, yellow=due soon, green=future)
+- **Filtering**: New filter chips for "Due Date", "Overdue", "Due This Week"
+- **Familiar**: Leverages existing `#tag` system users already know
+
+### Technical Approach
+- **Zero backend changes**: Uses existing hashtag infrastructure completely
+- **Extend Tag component**: Add due date detection and styling to existing `Tag.tsx`
+- **Filter integration**: Extend existing `tagSearch` filtering with due date logic
+- **Auto-completion**: Existing tag suggestions work automatically
+
+### Implementation Scope
+- **Files to modify**: ~3 frontend files (Tag.tsx, memoFilter.ts, MemoFilters.tsx)
+- **No database/API changes**: Pure frontend extension
+
+### Example Usage
+```
+Meeting prep #due/2025-01-15
+Follow up with client #due/2025-01-20
+Review quarterly report #due/2025-01-31
+```
+
+**Questions for feedback:**
+1. Does `#due/YYYY-MM-DD` format feel intuitive?
+2. Any concerns with this minimal approach vs full database implementation?
