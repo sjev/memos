@@ -114,8 +114,8 @@ development/
 │   └── entrypoint.sh          # Frontend startup script
 ├── seed/
 │   └── sample-data.sql        # Sample database content
-├── data/                      # Development database storage
-│   └── memos_dev.db           # SQLite database file
+├── data/                      # Development database storage (gitignored)
+│   └── memos_dev.db           # SQLite database file (auto-created)
 ├── test-setup.sh              # Environment validation script
 └── README.md                  # This file
 ```
