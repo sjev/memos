@@ -13,6 +13,7 @@ RUN apt-get update && apt-get install -y \
     git \
     make \
     gcc \
+    jq \
     && groupadd --gid $GID $USERNAME \
     && useradd --uid $UID --gid $GID -m $USERNAME \
     && echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/$USERNAME \
@@ -25,7 +26,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && npm install -g pnpm
 
 # Install Claude Code CLI
-RUN curl -fsSL https://claude.ai/install.sh | bash
+RUN npm install -g @anthropic-ai/claude-code
 
 # Switch to non-root user
 USER $USERNAME
