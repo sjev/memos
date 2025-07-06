@@ -4,166 +4,159 @@ see [Memos due date](https://github.com/usememos/memos/issues/4823)
 
 ---
 
-# Due Date Feature
+# Due Date Feature (Minimal Tag-Based Implementation)
 
 ## User Story
 
 **As a** memos user
-**I want** to set optional due dates on my memos and visualize them in the calendar
+**I want** to set due dates on my memos using a simple tag format
 **So that** I can track time-sensitive notes and follow-up items effectively
 
 ### Current Pain Points
 - No way to track time-sensitive memos or follow-up items
-- Calendar only shows creation dates, not when action is needed
 - Difficult to identify overdue or upcoming tasks
+- Need simple solution without complex UI or database changes
 
 ### Proposed Solution
-Add optional due date functionality with filtering and calendar visualization capabilities.
+Use hashtag format `#due/YYYY-MM-DD` within memo content to indicate due dates, leveraging the existing tag system infrastructure.
 
 ## Detailed Requirements
 
 ### Core Functionality
 
-#### 1. Due Date Management
-- **Add due date**: Set optional due date when creating new memos
-- **Edit due date**: Modify existing due dates on any memo
-- **Remove due date**: Clear due date from memos
-- **Due date format**: Date-only (no time component needed initially)
+#### 1. Due Date Tag Format
+- **Tag syntax**: `#due/YYYY-MM-DD` within memo content
+- **Parsing**: Leverage existing hashtag parsing infrastructure
+- **Multiple dates**: Support multiple due dates per memo if needed
+- **Hierarchical**: Uses existing `#parent/child` tag structure
 
 #### 2. Visual Indicators
-- **Due date display**: Show due date in memo view alongside creation date
-- **Overdue indication**: Visual cue for memos past their due date
-- **Upcoming indication**: Highlight memos due within next 7 days
-
-#### 3. Filtering System
-- **Due date filter**: New filter button to show only memos with due dates
-- **Overdue filter**: Show only memos past their due date
-
-### User Interface Specifications
-
-#### 1. Memo Editor
-- **Due date picker**: Date input field in memo editor
-- **Clear option**: Easy way to remove due date
-
-#### 2. Memo Display
-- **Due date badge**: Visual indicator showing due date
+- **Due date badge**: Parse and display due date inline with content
 - **Status indicators**:
-  - Green: Due in future
+  - Green: Due in future (>7 days)
   - Yellow: Due within 7 days
   - Red: Overdue
 
-#### 3. Filter UI
-- **Due date filter chip**: Similar to existing "todo" and "code" filters
-- **Overdue filter chip**: Show only overdue memos
-- **Combined filters**: Work with existing filters (tags, visibility, etc.)
+#### 3. Filtering System
+- **Due date filter**: Show only memos containing due date tags
+- **Overdue filter**: Show only memos with overdue dates
+- **Due this week**: Show memos due within 7 days
+
+### User Interface Specifications
+
+#### 1. Memo Content
+- **Tag rendering**: `#due/2025-08-05` displays as styled badge
+- **Status styling**: Color-coded based on due date status
+- **Tooltip**: Show relative time on hover ("Due in 3 days")
+
+#### 2. Filter UI
+- **Filter chips**: Add "Due Date", "Overdue", "Due This Week" options
+- **Combined filters**: Work with existing tag and content filters
+- **Filter count**: Show count of memos matching due date filters
 
 
 ### Technical Requirements
 
-#### 1. Data Model Changes
-- Add `due_date` field to Memo protobuf (optional timestamp)
-- Update database schema with `due_date` column
-- Maintain backward compatibility with existing memos
+#### 1. Tag System Extension
+- **Tag pattern**: `#due/YYYY-MM-DD` using existing hashtag infrastructure
+- **Date extraction**: Parse date from tag content after `#due/` prefix
+- **Validation**: Ensure extracted dates are valid
 
-#### 2. API Enhancements
-- Support due date in CreateMemo and UpdateMemo operations
-- Add due date filtering to ListMemos
-- Include due date in search/filter queries
+#### 2. Frontend Integration
+- **FilterFactor enum**: Add due date filter options
+- **Content renderer**: Update memo display to show due date badges
+- **Filter system**: Extend existing filter logic
 
-#### 3. Frontend Integration
-- Extend existing FilterFactor enum with due date options
-- Update MemoView component to display due dates
-- Add due date input to MemoEditor
-
-#### 4. Performance Considerations
-- Index due_date column for efficient filtering
-- Optimize queries for overdue memo retrieval
+#### 3. Performance Considerations
+- **Existing tag infrastructure**: Leverages existing tag parsing and filtering
+- **Tag indexing**: Benefits from existing tag performance optimizations
+- **No backend changes**: Uses existing tag system entirely
 
 ## Acceptance Criteria
 
 ### Must Have (MVP)
-- [ ] Add due date when creating new memos
-- [ ] Edit/remove due date on existing memos
-- [ ] Display due date in memo view with visual status indicators
-- [ ] Filter memos by presence of due date
-- [ ] Filter by overdue memos
+- [ ] Type `#due/2025-08-05` in memo content
+- [ ] Due date renders as colored badge inline with content
+- [ ] Filter memos by "Due Date" to show only memos with due dates
+- [ ] Filter memos by "Overdue" to show only overdue memos
+- [ ] Filter memos by "Due This Week" to show upcoming due dates
 
 ### Should Have (Phase 2)
-- [ ] Quick date selection shortcuts in editor
-- [ ] Relative time display ("Due in 3 days")
-- [ ] Sort memos by due date
+- [ ] Tooltip showing relative time ("Due in 3 days")
+- [ ] Support multiple due dates per memo
+- [ ] Tag auto-completion for `#due/` prefix
 
 ### Could Have (Future)
-- [ ] Calendar integration with due date visualization
+- [ ] Auto-complete for due date format in editor
 - [ ] Due date notifications/reminders
-- [ ] Bulk due date operations
-- [ ] Integration with external calendar systems
+- [ ] Sort memos by due date
+- [ ] Calendar integration with due date visualization
 
 ## Success Metrics
-- Users can successfully set and modify due dates
-- Filter performance remains acceptable with due date queries
+- Users can successfully add due dates using tag format
+- Filter performance remains acceptable with content parsing
 - Visual indicators clearly communicate due date status
 - Feature adoption rate among existing users
 
-## Implementation Phases
+## Implementation Plan
 
-### Phase 1: Core Infrastructure
-1. Database schema updates
-2. Protocol buffer changes
-3. Basic API support
+### Phase 1: Core Functionality (0.5-1 day)
+1. **Tag System Extension**
+   - Extend existing tag renderer to detect `#due/` prefix
+   - Extract and validate date from tag content
+   - Calculate due date status (overdue, upcoming, future)
 
-### Phase 2: Frontend Integration
-1. Due date input in memo editor
-2. Display in memo view
-3. Basic filtering
+2. **Visual Styling**
+   - Add status-based styling for due date tags (red, yellow, green)
+   - Ensure consistent styling with existing tag system
 
-### Phase 3: Polish & Enhancement
-1. Status indicators and visual cues
-2. Performance optimizations
+3. **Filter Integration**
+   - Extend existing tag filtering to support due date filters
+   - Add due date filter logic using existing `tagSearch` infrastructure
 
-## Technical Implementation Plan
+### Phase 2: Polish & Enhancement (0.5 day)
+1. **Visual Improvements**
+   - Add hover tooltips with relative time
+   - Refine badge styling and positioning
 
-### Backend Changes
+2. **Filter UI**
+   - Add due date filter chips to existing filter bar
+   - Update filter combinations
 
-#### 1. Protocol Buffer Updates
-**File:** `proto/api/v1/memo_service.proto`
-```protobuf
-message Memo {
-  // ... existing fields ...
-  optional google.protobuf.Timestamp due_date = 19;  // New due date field
+## Technical Implementation
+
+### Frontend Changes Only
+
+#### 1. Tag System Extension
+**File:** `web/src/components/MemoContent/Tag.tsx`
+```typescript
+// Extend existing tag component to handle due date tags
+export function isDueDateTag(tag: string): boolean {
+  return tag.startsWith('due/') && /due\/\d{4}-\d{2}-\d{2}/.test(tag);
+}
+
+export function parseDueDateFromTag(tag: string): Date | null {
+  const match = tag.match(/due\/(\d{4}-\d{2}-\d{2})/);
+  if (!match) return null;
+  
+  const date = new Date(match[1]);
+  return isNaN(date.getTime()) ? null : date;
+}
+
+export function getDueDateStatus(date: Date): 'overdue' | 'upcoming' | 'future' {
+  const now = new Date();
+  const diffDays = Math.ceil((date.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+  
+  if (diffDays < 0) return 'overdue';
+  if (diffDays <= 7) return 'upcoming';
+  return 'future';
 }
 ```
-
-#### 2. Database Schema Migration
-**File:** `store/migration/sqlite/LATEST.sql`
-```sql
--- Add due_date column to memo table
-ALTER TABLE memo ADD COLUMN due_date BIGINT DEFAULT NULL;
--- Add index for efficient due date filtering
-CREATE INDEX idx_memo_due_date ON memo(due_date) WHERE due_date IS NOT NULL;
-```
-
-#### 3. Store Layer Updates
-**File:** `store/memo.go`
-- Add due_date field to Memo struct
-- Update CreateMemo and UpdateMemo methods
-- Add due date filtering to ListMemos query builder
-
-#### 4. API Service Updates
-**File:** `server/router/api/v1/memo_service.go`
-- Handle due_date in CreateMemo and UpdateMemo requests
-- Add due date validation (must be in future when set)
-- Support due date filtering in ListMemos
-
-### Frontend Changes
-
-#### 1. Type Definitions
-**File:** `web/src/types/proto/api/v1/memo_service.ts`
-- Generated types will include due_date field automatically
 
 #### 2. Filter System Extension
 **File:** `web/src/store/v2/memoFilter.ts`
 ```typescript
+// Extend existing filter factors
 export type FilterFactor =
   | "tagSearch"
   | "visibility"
@@ -171,68 +164,67 @@ export type FilterFactor =
   | "displayTime"
   | "dueDate"           // New filter type
   | "overdueMemos"      // New filter type
+  | "dueSoon"          // New filter type
   | "pinned"
   | "property.hasLink"
   | "property.hasTaskList"
   | "property.hasCode";
+
+// Add due date filtering logic that works with existing tag system
+export function filterMemosByDueDate(memos: Memo[], filterType: 'dueDate' | 'overdueMemos' | 'dueSoon'): Memo[] {
+  return memos.filter(memo => {
+    const tags = extractTagsFromMemo(memo); // Use existing tag extraction
+    const dueDateTags = tags.filter(tag => isDueDateTag(tag));
+    
+    if (dueDateTags.length === 0) return filterType === 'dueDate' ? false : false;
+    
+    const dueDates = dueDateTags.map(tag => parseDueDateFromTag(tag)).filter(Boolean);
+    // Filter logic based on filterType...
+  });
+}
 ```
 
-#### 3. Memo Editor Enhancement
-**File:** `web/src/components/MemoEditor/MemoEditor.tsx`
-- Add due date picker component
-- Include due date in memo creation/update logic
+#### 3. Tag Renderer Updates
+**File:** `web/src/components/MemoContent/Tag.tsx`
+```typescript
+// Extend existing Tag component to handle due date styling
+const Tag: React.FC<{ tag: string }> = ({ tag }) => {
+  const isDueDate = isDueDateTag(tag);
+  
+  if (isDueDate) {
+    const date = parseDueDateFromTag(tag);
+    const status = date ? getDueDateStatus(date) : 'future';
+    
+    return (
+      <span className={`tag due-date-tag ${status}`}>
+        #{tag}
+      </span>
+    );
+  }
+  
+  // Existing tag rendering logic...
+};
+```
 
-#### 4. Memo Display Updates
-**File:** `web/src/components/MemoView.tsx`
-- Display due date alongside creation date
-- Add visual status indicators (colors for overdue/upcoming)
-
-#### 5. Filter UI Components
+#### 4. Filter UI Components
 **File:** `web/src/components/MemoFilters.tsx`
-- Add due date filter chips
-- Add overdue filter chip
-- Maintain existing filter combinations
+- Add "Due Date", "Overdue", "Due Soon" filter chips
+- Leverage existing filter UI patterns and styling
 
+### No Backend Changes Required
+- **Database:** No schema changes needed
+- **API:** No new endpoints or modifications
+- **Protocol Buffers:** No changes required
+- **Tag System:** Leverages existing hashtag infrastructure completely
 
-### Implementation Dependencies
-
-#### Required Libraries
-- **Backend:** No new dependencies (uses existing protobuf/database libraries)
-- **Frontend:** Use native HTML5 date input for simplicity
-
-#### Database Considerations
-- **Migration strategy:** Use existing migration system
-- **Backward compatibility:** Due date is optional, existing memos unaffected
-- **Performance:** Index on due_date column for efficient filtering
-- **Multi-database support:** Ensure migration works with SQLite, MySQL, PostgreSQL
-
-#### Testing Requirements
-- **Unit tests:** Due date validation, filtering logic
-- **Integration tests:** API endpoints with due date operations
-- **Frontend tests:** Component behavior with due dates
-- **Migration tests:** Database schema updates
-
-### Risk Mitigation
-
-#### Potential Issues
-1. **Performance impact:** Due date filtering on large datasets
-   - **Solution:** Database indexing and query optimization
-2. **Calendar complexity:** Dual-mode display may confuse users
-   - **Solution:** Clear UI indicators and smooth transitions
-3. **Timezone handling:** Due dates across different user timezones
-   - **Solution:** Store as UTC, display in user's local timezone
-4. **Data migration:** Adding due date to existing memos
-   - **Solution:** Gradual rollout with proper migration scripts
-
-#### Rollback Strategy
-- Database migration can be reversed if needed
-- Feature flags to enable/disable due date functionality
-- Progressive rollout to subset of users initially
+### Testing Strategy
+- **Unit tests:** Due date tag parsing and validation
+- **Component tests:** Tag rendering with due date styling
+- **Integration tests:** Filter functionality with existing tag system
 
 ### Estimated Development Time
-- **Phase 1 (Backend):** 2-3 days
-- **Phase 2 (Frontend Core):** 3-4 days
-- **Phase 3 (Polish):** 1-2 days
-- **Testing & Bug fixes:** 1-2 days
+- **Phase 1:** 0.5-1 day
+- **Phase 2:** 0.5 day
+- **Testing:** 0.5 day
 
-**Total:** 7-11 days for complete implementation
+**Total:** 1-2 days for complete implementation
