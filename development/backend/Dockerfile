@@ -1,7 +1,11 @@
 FROM golang:1.24-alpine
 
 # Install basic tools and libc-dev for CGO
-RUN apk add --no-cache git make gcc libc-dev
+RUN apk add --no-cache git make gcc libc-dev curl
+
+# Install buf CLI for protobuf generation
+RUN curl -sSL https://github.com/bufbuild/buf/releases/latest/download/buf-Linux-x86_64 -o /usr/local/bin/buf && \
+    chmod +x /usr/local/bin/buf
 
 # Create app directory
 WORKDIR /app
