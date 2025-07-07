@@ -26,3 +26,6 @@ dist
 
 # Development environment data
 development/data/
+
+# Tooling
+.claude
