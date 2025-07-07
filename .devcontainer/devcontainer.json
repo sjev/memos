@@ -7,18 +7,7 @@
             "USER_GID": "${localEnv:USER_GID}"
         }
     },
-    // Use 'forwardPorts' to make a list of ports inside the container available locally.
-    "forwardPorts": [3001, 8081],
-    "portsAttributes": {
-        "3001": {
-            "label": "Frontend Dev Server",
-            "onAutoForward": "notify"
-        },
-        "8081": {
-            "label": "Backend API",
-            "onAutoForward": "notify"
-        }
-    },
+    "runArgs": ["--network=host"],
     // Configure tool-specific properties.
     "customizations": {
         "vscode": {
