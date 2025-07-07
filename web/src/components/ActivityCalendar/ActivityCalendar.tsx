@@ -3,16 +3,16 @@ import { observer } from "mobx-react-lite";
 import { memo, useMemo } from "react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import { workspaceStore } from "@/store/v2";
+import { workspaceStore } from "@/store";
 import type { ActivityCalendarProps, CalendarDay } from "@/types/statistics";
 import { useTranslate } from "@/utils/i18n";
 
 const getCellOpacity = (ratio: number): string => {
   if (ratio === 0) return "";
-  if (ratio > 0.75) return "bg-primary/90 text-primary-foreground";
-  if (ratio > 0.5) return "bg-primary/70 text-primary-foreground";
-  if (ratio > 0.25) return "bg-primary/50 text-primary-foreground";
-  return "bg-primary/30 text-primary-foreground";
+  if (ratio > 0.75) return "bg-destructive text-destructive-foreground";
+  if (ratio > 0.5) return "bg-destructive/70 text-destructive-foreground";
+  if (ratio > 0.25) return "bg-destructive/50 text-destructive-foreground";
+  return "bg-destructive/30 text-destructive-foreground";
 };
 
 const CalendarCell = memo(

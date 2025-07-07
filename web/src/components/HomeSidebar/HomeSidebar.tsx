@@ -6,7 +6,7 @@ import SearchBar from "@/components/SearchBar";
 import useCurrentUser from "@/hooks/useCurrentUser";
 import { cn } from "@/lib/utils";
 import { Routes } from "@/router";
-import { memoStore, userStore } from "@/store/v2";
+import { memoStore, userStore } from "@/store";
 import MemoFilters from "../MemoFilters";
 import StatisticsView from "../StatisticsView";
 import ShortcutsSection from "./ShortcutsSection";
@@ -45,9 +45,9 @@ const HomeSidebar = observer((props: Props) => {
       )}
     >
       <SearchBar />
+      <MemoFilters />
       <div className="mt-1 px-1 w-full">
         <StatisticsView />
-        <MemoFilters />
         {currentUser && <ShortcutsSection />}
         <TagsSection />
       </div>
