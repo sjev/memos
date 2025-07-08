@@ -4,8 +4,7 @@ services:
       context: ..
       dockerfile: development/backend/Dockerfile
     container_name: memos-backend-dev
-    ports:
-      - "8081:8081"
+    network_mode: host
     volumes:
       - ..:/app
       - /app/build
@@ -16,11 +15,6 @@ services:
       - MEMOS_DRIVER=sqlite
       - MEMOS_DSN=/app/development/data/memos_dev.db
       - MEMOS_DATA=/app/development/data
-    depends_on:
-      - db-init
-    networks:
-      - memos-dev
-    restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8081/healthz"]
       interval: 30s
@@ -33,50 +27,12 @@ services:
       context: ..
       dockerfile: development/frontend/Dockerfile
     container_name: memos-frontend-dev
-    ports:
-      - "3000:3000"
+    network_mode: host
     volumes:
       - ../web:/app
       - /app/node_modules
     environment:
       - CHOKIDAR_USEPOLLING=true
-      - DEV_PROXY_SERVER=http://backend:8081
-    depends_on:
-      - backend
-    networks:
-      - memos-dev
-    restart: unless-stopped
+      - DEV_PROXY_SERVER=http://localhost:8081
 
-  db-init:
-    image: alpine:latest
-    container_name: memos-db-init
-    volumes:
-      - ./data:/data
-      - ./seed:/seed
-      - ../store/migration/sqlite:/schema
-    command: >
-      sh -c "
-        echo 'Initializing database...'
-        mkdir -p /data
-        if [ ! -f /data/memos_dev.db ]; then
-          echo 'Creating sample database with schema...'
-          apk add --no-cache sqlite
-          # First create the database schema
-          sqlite3 /data/memos_dev.db < /schema/LATEST.sql
-          # Then add sample data
-          sqlite3 /data/memos_dev.db < /seed/sample-data.sql
-          echo 'Sample data loaded successfully!'
-        else
-          echo 'Database already exists, skipping initialization.'
-        fi
-      "
-    networks:
-      - memos-dev
 
-volumes:
-  memos-data:
-    driver: local
-
-networks:
-  memos-dev:
-    driver: bridge

@@ -7,6 +7,7 @@ A Docker Compose-based development environment for Memos that provides:
 - **Service isolation** for better development experience
 - **Tool-agnostic** approach (works with any editor/IDE)
 - **Isolated development data** - all data stored in `development/data/`
+- **Host networking** for simplified development setup
 
 ## Quick Start
 
@@ -14,13 +15,22 @@ A Docker Compose-based development environment for Memos that provides:
    - Docker and Docker Compose installed
    - Git repository cloned
 
-2. **Start the development environment**
+2. **Initialize database (optional - done automatically)**
    ```bash
    cd development
-   docker-compose up
+   ./init-db.sh
    ```
 
-3. **Access the application**
+3. **Start services**
+   ```bash
+   # Start backend
+   ./start-backend.sh
+
+   # Start frontend (in another terminal)
+   ./start-frontend.sh
+   ```
+
+4. **Access the application**
    - Frontend: http://localhost:3000
    - Backend API: http://localhost:8081
    - Health check: http://localhost:8081/healthz
@@ -29,20 +39,23 @@ A Docker Compose-based development environment for Memos that provides:
 
 ### Backend (Go API)
 - **Port**: 8081
-- **Hot reload**: Manual restart via `docker-compose restart backend`
+- **Hot reload**: Manual restart via `./start-backend.sh`
 - **Database**: SQLite with sample data
 - **Environment**: Development mode
+- **Networking**: Host mode (direct access to localhost)
 - **Note**: Initial compilation takes 60-90 seconds due to Go dependencies
 
 ### Frontend (React)
 - **Port**: 3000
 - **Hot reload**: Vite dev server with HMR
-- **API proxy**: Automatically configured to backend
+- **API proxy**: Configured to http://localhost:8081
+- **Networking**: Host mode (direct access to localhost)
 
 ### Database
 - **Type**: SQLite
 - **Location**: `./data/memos_dev.db`
 - **Sample data**: Pre-populated with users, memos, and settings
+- **Initialization**: Automatic via `init-db.sh`
 
 ## Sample Users
 
@@ -58,25 +71,24 @@ The development environment includes these test users:
 
 ### Full Stack
 ```bash
-# Start all services
+# Start all services (traditional method)
 docker-compose up
 
-# Start with logs
-docker-compose up --build
-
-# Stop all services
-docker-compose down
-
-# Restart everything
-docker-compose restart
+# Start with individual scripts (recommended)
+./start-backend.sh      # Terminal 1
+./start-frontend.sh     # Terminal 2
 ```
 
 ### Individual Services
 ```bash
 # Start only backend
+./start-backend.sh
+# OR
 docker-compose up backend
 
 # Start only frontend
+./start-frontend.sh
+# OR
 docker-compose up frontend
 
 # View logs
@@ -86,10 +98,12 @@ docker-compose logs -f frontend
 
 ### Database Management
 ```bash
+# Initialize database
+./init-db.sh
+
 # Reset database (removes all data)
-docker-compose down -v
 rm -f ./data/memos_dev.db
-docker-compose up db-init
+./init-db.sh
 
 # Access database directly
 sqlite3 ./data/memos_dev.db
@@ -106,7 +120,10 @@ sqlite3 ./data/memos_dev.db
 
 ```
 development/
-├── docker-compose.yml          # Main orchestration file
+├── docker-compose.yml          # Main orchestration file (simplified)
+├── init-db.sh                 # Database initialization script
+├── start-backend.sh           # Backend startup script
+├── start-frontend.sh          # Frontend startup script
 ├── backend/
 │   ├── Dockerfile             # Backend development container
 │   └── entrypoint.sh          # Backend startup script
@@ -124,20 +141,24 @@ development/
 ## Troubleshooting
 
 ### Port Conflicts
-If ports 3000 or 8081 are already in use, modify the ports in `docker-compose.yml`:
+If ports 3000 or 8081 are already in use:
 
-```yaml
-ports:
-  - "3001:3000"  # Frontend
-  - "8082:8081"  # Backend
+**Option 1: Kill existing processes**
+```bash
+sudo lsof -ti:3000 | xargs kill -9
+sudo lsof -ti:8081 | xargs kill -9
 ```
+
+**Option 2: Modify environment variables**
+Edit the startup scripts or docker-compose.yml to use different ports.
 
 ### Database Issues
 If you encounter database errors:
 
 1. Stop services: `docker-compose down`
 2. Remove database: `rm -f ./data/memos_dev.db`
-3. Restart: `docker-compose up`
+3. Reinitialize: `./init-db.sh`
+4. Restart: `./start-backend.sh`
 
 ### Build Issues
 If containers fail to build:
@@ -147,9 +168,10 @@ If containers fail to build:
 3. Restart: `docker-compose up --build`
 
 ### Hot Reload Not Working
-- **Backend**: Restart with `docker-compose restart backend`
-- **Frontend**: Ensure file watching is enabled in container
+- **Backend**: Restart with `./start-backend.sh`
+- **Frontend**: Restart with `./start-frontend.sh`
 - **Permissions**: Check file permissions on mounted volumes
+- **Network**: Ensure host networking is working properly
 
 ## Environment Variables
 
@@ -163,7 +185,7 @@ MEMOS_DRIVER=sqlite
 MEMOS_DSN=/app/development/data/memos_dev.db
 
 # Frontend configuration
-VITE_API_URL=http://localhost:8081
+DEV_PROXY_SERVER=http://localhost:8081
 CHOKIDAR_USEPOLLING=true
 ```
 

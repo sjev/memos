@@ -20,5 +20,9 @@ COPY . .
 # Expose port
 EXPOSE 8081
 
-# Run go directly with auto-rebuild script
-CMD ["sh", "-c", "while true; do go run ./bin/memos/main.go --mode dev --port 8081 || sleep 1; done"]
+# Copy entrypoint script
+COPY development/backend/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+# Run without auto-restart
+CMD ["/entrypoint.sh"]
