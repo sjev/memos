@@ -66,12 +66,12 @@ The filtering system operates at the database level for performance. Due date pr
 ### Backend
 - [x] Add `has_due_date` field to Protocol Buffers
 - [x] Implement due date detection in property runner
-- [ ] Add CEL filter attribute for `has_due_date`
-- [ ] Update database SQL templates
+- [x] Add CEL filter attribute for `has_due_date`
+- [x] Add sample memos with due dates to development seed data
 
 ### Frontend
-- [ ] Create due date parser utility
 - [ ] Add "Due Date" filter to filter UI
-- [ ] Implement color-coded badge rendering
 - [ ] Add sorting by due date for filtered results
+- [ ] Create due date parser utility
+- [ ] Implement color-coded badge rendering
 
