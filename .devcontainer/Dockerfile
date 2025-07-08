@@ -22,16 +22,23 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install Node.js and pnpm
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
     && apt-get install -y nodejs \
     && npm install -g pnpm
 
 # Install Claude Code CLI
 RUN npm install -g @anthropic-ai/claude-code
 
+# Install protocol buffer tools
+RUN apt-get update && apt-get install -y protobuf-compiler \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
 # Install buf CLI for protocol buffer generation
 RUN curl -sSL "https://github.com/bufbuild/buf/releases/latest/download/buf-$(uname -s)-$(uname -m)" -o /usr/local/bin/buf \
     && chmod +x /usr/local/bin/buf
+
+# Install golangci-lint for Go linting
+RUN curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b /usr/local/bin v2.1.6
 
 # Switch to non-root user
 USER $USERNAME
