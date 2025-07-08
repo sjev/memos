@@ -37,6 +37,9 @@ const MemoFilters = observer(() => {
           return factorLabel;
       }
     }
+    if (filter.factor === "dueDate") {
+      return "hasDueDate";
+    }
     return filter.factor;
   };
 
