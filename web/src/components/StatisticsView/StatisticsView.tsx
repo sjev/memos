@@ -59,7 +59,7 @@ const StatisticsView = observer(() => {
         <StatCard
           icon={<CalendarIcon className="w-4 h-auto mr-1 opacity-70" />}
           label="Due"
-          count={0}
+          count={memoTypeStats.dueDateCount || 0}
           onClick={() => handleFilterClick("dueDate")}
         />
 
