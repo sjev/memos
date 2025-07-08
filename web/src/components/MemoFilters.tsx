@@ -69,6 +69,7 @@ const FactorIcon = ({ factor, className }: { factor: FilterFactor; className?: s
     visibility: <EyeIcon className={className} />,
     contentSearch: <SearchIcon className={className} />,
     displayTime: <CalendarIcon className={className} />,
+    dueDate: <CalendarIcon className={className} />,
     pinned: <BookmarkIcon className={className} />,
     "property.hasLink": <LinkIcon className={className} />,
     "property.hasTaskList": <CheckCircleIcon className={className} />,
