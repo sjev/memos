@@ -29,6 +29,10 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
 # Install Claude Code CLI
 RUN npm install -g @anthropic-ai/claude-code
 
+# Install buf CLI for protocol buffer generation
+RUN curl -sSL "https://github.com/bufbuild/buf/releases/latest/download/buf-$(uname -s)-$(uname -m)" -o /usr/local/bin/buf \
+    && chmod +x /usr/local/bin/buf
+
 # Switch to non-root user
 USER $USERNAME
 
