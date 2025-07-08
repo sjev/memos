@@ -49,29 +49,28 @@ The filtering system operates at the database level for performance. Due date pr
 3. **Content Renderer**: Display due dates as color-coded badges
 4. **Sorting**: Sort filtered memos by due date
 
+## Status
+
+✅ **Core Filtering System - COMPLETE**
+- Backend due date detection and storage (`@due(YYYY-MM-DD)` pattern)
+- Database-level filtering for all supported databases
+- Frontend filter UI with statistics display
+- CEL expression integration
+
+🔄 **Visual Enhancements - REMAINING**
+- Color-coded due date badges in memo content
+- Sort filtered memos by due date
+- Due date extraction utilities
+
 ## Acceptance Criteria (MVP)
 
-- [ ] Type `@due(2025-08-05)` in memo content
-- [ ] Single "Due Date" filter shows all memos with due dates
-- [ ] Filtered memos sorted by due date (earliest first)
+- [x] Type `@due(2025-08-05)` in memo content
+- [x] Single "Due Date" filter shows all memos with due dates
+- [x] Due date detection happens at memo create/update time
+- [x] Database-level filtering for performance
 - [ ] Due dates render as color-coded badges:
   - 🟢 Green: Due in future (>7 days)
   - 🟡 Yellow: Due within 7 days
   - 🔴 Red: Overdue
-- [ ] Due date detection happens at memo create/update time
-- [ ] Database-level filtering for performance
-
-## Implementation Steps
-
-### Backend
-- [x] Add `has_due_date` field to Protocol Buffers
-- [x] Implement due date detection in property runner
-- [x] Add CEL filter attribute for `has_due_date`
-- [x] Add sample memos with due dates to development seed data
-
-### Frontend
-- [ ] Add "Due Date" filter to filter UI
-- [ ] Add sorting by due date for filtered results
-- [ ] Create due date parser utility
-- [ ] Implement color-coded badge rendering
+- [ ] Filtered memos sorted by due date (earliest first)
 
