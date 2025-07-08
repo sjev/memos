@@ -2,9 +2,9 @@
 
 A Docker Compose-based development environment for Memos that provides:
 
-- **Hot reload** for frontend (React) and manual restart for backend (Go)
+- **Hot reload** for frontend (React) with automatic refresh
 - **Pre-populated database** with sample data
-- **Service isolation** for better development experience
+- **Containerized services** with shared host networking
 - **Tool-agnostic** approach (works with any editor/IDE)
 - **Isolated development data** - all data stored in `development/data/`
 - **Host networking** for simplified development setup
@@ -39,7 +39,7 @@ A Docker Compose-based development environment for Memos that provides:
 
 ### Backend (Go API)
 - **Port**: 8081
-- **Hot reload**: Manual restart via `./start-backend.sh`
+- **Restart**: Manual restart required via `./start-backend.sh`
 - **Database**: SQLite with sample data
 - **Environment**: Development mode
 - **Networking**: Host mode (direct access to localhost)
