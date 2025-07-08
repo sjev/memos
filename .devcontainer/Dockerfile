@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install -y \
     make \
     gcc \
     jq \
+    sqlite3 \
     && groupadd --gid $GID $USERNAME \
     && useradd --uid $UID --gid $GID -m $USERNAME \
     && echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/$USERNAME \
@@ -35,10 +36,16 @@ USER $USERNAME
 RUN pnpm config set store-dir /home/dev/.pnpm-store && \
     pnpm config set virtual-store-dir .pnpm
 
-
 # Set environment variables
 ENV PATH="/usr/local/go/bin:${PATH}"
 
-
 # Set working directory
 WORKDIR /workspaces/memos
+
+# Pre-download Go modules for faster startup
+COPY --chown=$USERNAME:$USERNAME go.mod go.sum ./
+RUN go mod download
+
+# Pre-install Node.js dependencies for faster startup
+COPY --chown=$USERNAME:$USERNAME web/package.json web/pnpm-lock.yaml ./web/
+RUN cd web && pnpm install --frozen-lockfile

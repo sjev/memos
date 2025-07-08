@@ -1,13 +1,27 @@
 {
+    "name": "Memos Development",
+    "workspaceFolder": "/workspaces/memos",
+    "initializeCommand": ".devcontainer/init_host.sh",
     "postCreateCommand": "cd web && pnpm install",
     "build": {
         "dockerfile": "Dockerfile",
+        "context": "..",
         "args": {
-            "USER_UID": "${localEnv:USER_UID}",
-            "USER_GID": "${localEnv:USER_GID}"
+            "UID": "${localEnv:USER_UID:1000}",
+            "GID": "${localEnv:USER_GID:1000}"
         }
     },
-    "runArgs": ["--network=host"],
+    "containerEnv": {
+        "MEMOS_MODE": "dev",
+        "MEMOS_PORT": "8081",
+        "MEMOS_DRIVER": "sqlite",
+        "MEMOS_DSN": "/workspaces/memos/development/data/memos_dev.db",
+        "MEMOS_DATA": "/workspaces/memos/development/data"
+    },
+    "runArgs": [
+        "--network=host"
+    ],
+    "remoteUser": "dev",
     // Configure tool-specific properties.
     "customizations": {
         "vscode": {
