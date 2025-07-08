@@ -3,6 +3,7 @@ package version
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"golang.org/x/mod/semver"
 )
@@ -11,12 +12,11 @@ import (
 // Semantic versioning: https://semver.org/
 var Version = "0.25.0"
 
-// DevVersion is the service current development version.
-var DevVersion = "0.25.0-dev"
-
 func GetCurrentVersion(mode string) string {
 	if mode == "dev" || mode == "demo" {
-		return DevVersion
+		// Include build timestamp for dev versions
+		timestamp := time.Now().Format("20060102-150405")
+		return fmt.Sprintf("%s.%s.%s", Version,mode, timestamp)
 	}
 	return Version
 }
