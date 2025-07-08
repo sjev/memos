@@ -57,10 +57,61 @@ The filtering system operates at the database level for performance. Due date pr
 - Frontend filter UI with statistics display
 - CEL expression integration
 
-🔄 **Visual Enhancements - REMAINING**
+🔄 **Phase 2: Due Date Storage & Display - IN PROGRESS**
+- Store actual due date values in backend (not just boolean)
 - Color-coded due date badges in memo content
 - Sort filtered memos by due date
 - Due date extraction utilities
+
+## Implementation Plan: Phase 2
+
+### Backend Changes
+
+**1. Protocol Buffers Extension**
+- Add `due_date` field (string, ISO date format) to `MemoPayload.Property`
+- Keep existing `has_due_date` boolean for filtering
+- File: `proto/api/v1/memo_payload.proto` or similar
+
+**2. Property Runner Enhancement**
+- Extend `server/runner/memopayload/runner.go` to extract actual due date values
+- Parse all `@due(YYYY-MM-DD)` patterns and store earliest date
+- Logic: Multiple due dates → use earliest one
+- Set both `has_due_date=true` and `due_date="2025-01-15"`
+
+**3. Database Schema Considerations**
+- Due dates stored in JSON payload (no schema changes needed)
+- Sorting handled via JSON extraction in queries
+- Add sorting support to existing memo listing endpoints
+
+### Frontend Changes
+
+**4. Due Date Utilities**
+- Create `utils/dueDateUtils.ts` for date parsing and status calculation
+- Functions: `getDueDateStatus()`, `formatDueDate()`, `parseDueDates()`
+- Status calculation: overdue, upcoming (≤7 days), future
+
+**5. Badge Component**
+- Create `DueDateBadge.tsx` component with color coding:
+  - 🔴 Red: Overdue (past due date)
+  - 🟡 Yellow: Due within 7 days
+  - 🟢 Green: Due in future (>7 days)
+- Include calendar icon and formatted date
+
+**6. Content Rendering Integration**
+- Identify memo content renderer component
+- Integrate badge rendering for `@due()` patterns
+- Replace text patterns with interactive badges
+
+**7. Sorting Enhancement**
+- Add due date sorting to memo list queries
+- Update UI to show "sorted by due date" when filter active
+- Earliest due dates appear first
+
+### Technical Notes
+- **Multiple due dates**: Extract all dates, store earliest one
+- **Date validation**: Only accept valid YYYY-MM-DD format
+- **Timezone handling**: Use local date comparison (no time component)
+- **Performance**: Leverage existing JSON extraction patterns in database queries
 
 ## Acceptance Criteria (MVP)
 
