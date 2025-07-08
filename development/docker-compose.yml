@@ -1,0 +1,38 @@
+services:
+  backend:
+    build:
+      context: ..
+      dockerfile: development/backend/Dockerfile
+    container_name: memos-backend-dev
+    network_mode: host
+    volumes:
+      - ..:/app
+      - /app/build
+      - /app/tmp
+    environment:
+      - MEMOS_MODE=dev
+      - MEMOS_PORT=8081
+      - MEMOS_DRIVER=sqlite
+      - MEMOS_DSN=/app/development/data/memos_dev.db
+      - MEMOS_DATA=/app/development/data
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8081/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: development/frontend/Dockerfile
+    container_name: memos-frontend-dev
+    network_mode: host
+    volumes:
+      - ../web:/app
+      - /app/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - DEV_PROXY_SERVER=http://localhost:8081
+
+
